@@ -1,0 +1,76 @@
+---
+title: "Developing Data Products - Final Project"
+author: "Simon R."
+date: "October 24, 2017"
+output: ioslides_presentation
+---
+
+## Introduction
+
+The final project's requirements include both the developing of a Shiny application and the use of Slidify on RStudio to build a presentation that explains the use of such application and illustrates with a few details its construction. 
+
+In this case, the dataset employed has been obtained from http://viewfinderpanoramas.org/prominence.html. The database contains the geolocation of most of the world highest peaks, alongside their names and total height. In the application constructed, Shiny reads a cleaned version of the database that is available in the web and points each peak in the map using a color code that depends on the height. Moreover, for the height range selected through a double slider, statistics for the filtered peaks are displayed along with a histogram in heights (links to everything at the end). 
+
+## Data
+
+```{r setup, echo = F, warning=F, message=F}
+# This part of the code is destined to clean up the data and store it in a useful form before using it in the app. It is included for completion, but is not strictly neccessary for the app.
+
+# In my case, I downloaded the database and cleaned it partially in beforehand. The result is the "1500.csv" file, also included in the repository
+# The data have been stored locally in the folder of the project, "peaks"
+setwd("/home/simon/peaks/")
+
+# Locations and names of mountains all around the world higher than 1500m
+getwd()
+places <- read.csv("1500.csv", header = T)
+places$Lat_dec = as.numeric(as.character(places$Lat_dec))
+places$Long_dec = as.numeric(as.character(places$Long_dec))
+places["Class"] <- c()
+attach(places)
+
+# Create the color codes
+places$Class[(Elevation >= 8000)] <- ">8000m"
+places$Class[(Elevation >= 7000) & (Elevation < 8000)] <- ">7000m"
+places$Class[(Elevation >= 6000) & (Elevation < 7000)] <- ">6000m"
+places$Class[(Elevation >= 5000) & (Elevation < 6000)] <- ">5000m"
+places$Class[(Elevation >= 4000) & (Elevation < 5000)] <- ">4000m"
+places$Class[(Elevation >= 3000) & (Elevation < 4000)] <- ">3000m"
+places$Class[(Elevation >= 2000) & (Elevation < 3000)] <- ">2000m"
+places$Class[Elevation < 2000] <- ">1000m"
+
+# Name + height column
+places$info = paste(places$Name, "-", paste0(places$Elevation,"m"))
+
+# Create the new (clean) dataframe
+newPlaces <- data.frame(lat = places$Lat_dec, lng = places$Long_dec, class = places$Class, info = places$info)
+
+# Save the clean data to a new dataframe to use it afterwards
+#write.csv(newPlaces, "peaks.csv")      # Uncomment this line if you want it to be saved to a file
+
+# Read the database we just created
+peaks <- read.csv("peaks.csv")
+```
+
+The data being employed here is a clean version of the database available in the web. In the GitHub repository there is a crude version uploaded, "1500.csv", and a processed version, "peaks.csv", available for download. The latter case is the one we will be using for the construction of the app. 
+
+```{r preview, warning =F , message=F}
+head(peaks, 4)
+```
+
+## Example of usage of the app
+
+  <img src="/home/simon/peaks/app_use.png" height="420px" width="830px" />
+
+
+## Links
+
+The application should open a browser window, on which it will be displayed after a few seconds. In the GitHub repository you can find all the code alongside the example image used in this presentation and the two data files employed.
+
+ - The GitHub repository containing the project code is located at https://github.com/simonrsantana/DDP_final_project
+
+ - The Shiny application can be viewed in https://simonrs.shinyapps.io/Final_project/
+ 
+ - This presentation is hosted at https://simonrsantana.github.io/DDP_final_project/pres.html
+
+
+
